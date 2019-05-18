@@ -10,7 +10,7 @@ def call(body) {
       withEnv([
         "image=${image}",
       ]) {
-        "sh/build.sh".execute()
+        "./ci/build.sh".execute()
       }
     }
     stage("test") {
