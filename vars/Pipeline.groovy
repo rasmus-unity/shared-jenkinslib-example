@@ -1,11 +1,11 @@
 def call(body) {
 
-  service = 'echo $JOB_NAME | cut -d \"/\" -f 2'.execute().text().trim()
-  revision = 'git log --format=\"%H\" -n 1'.execute().text().trim()
-  image = "gcr.io/unity-ads-workshop-test/${service}:${revision}"
+  service = sh([returnStdout: true, script: 'echo $JOB_NAME | cut -d \"/\" -f 2']).trim()
+  // revision = sh([returnStdout: true, script: 'git log --format=\"%H\" -n 1']).trim()
+  // image = "gcr.io/unity-ads-workshop-test/${service}:${revision}"
 
   echo "service: ${service}"
-  echo "revision: ${revision}"
+  // echo "revision: ${revision}"
 
   stage("build") {
     withEnv([
