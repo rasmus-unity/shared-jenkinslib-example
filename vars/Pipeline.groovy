@@ -1,6 +1,8 @@
 def call(body) {
 
   node {
+    checkout scm
+
     service = sh([returnStdout: true, script: 'echo $JOB_NAME | cut -d \"/\" -f 2']).trim()
     revision = sh([returnStdout: true, script: 'git log --format=\"%H\" -n 1']).trim()
     image = "gcr.io/unity-ads-workshop-test/${service}:${revision}"
