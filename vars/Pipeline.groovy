@@ -28,9 +28,10 @@ def call(body) {
         file(credentialsId: 'GKE_SERVICE_ACCOUNT', variable: 'GKE_SERVICE_ACCOUNT')
       ]) {
         sh """
-            gcloud auth activate-service-account \${GKE_SERVICE_ACCOUNT_USER} --key-file=\${GKE_SERVICE_ACCOUNT}
-            docker login -u _json_key -p "\$(cat ${GKE_SERVICE_ACCOUNT})" https://gcr.io
-            docker push ${image}
+          set -x
+          gcloud auth activate-service-account \${GKE_SERVICE_ACCOUNT_USER} --key-file=\${GKE_SERVICE_ACCOUNT}
+          docker login -u _json_key -p "\$(cat ${GKE_SERVICE_ACCOUNT})" https://gcr.io
+          docker push ${image}
         """
       }
     }
