@@ -11,10 +11,7 @@ def call(body) {
       withEnv([
         "image=${image}",
       ]) {
-        sh """
-          find .
-          ./ci/build.sh
-        """
+        sh "./ci/build.sh"
       }
     }
 
@@ -25,13 +22,23 @@ def call(body) {
 
     // push image to docker registry, so can be pulled by Kubernetes manifests
     stage("push image") {
-      sh "docker push ${image}"
+      // need to authenticate to be able to push to docker registry
+      withCredentials([
+        string(credentialsId: 'GKE_SERVICE_ACCOUNT_USER', variable: 'GKE_SERVICE_ACCOUNT_USER'),
+        file(credentialsId: 'GKE_SERVICE_ACCOUNT', variable: 'GKE_SERVICE_ACCOUNT')
+      ]) {
+        sh """
+            gcloud auth activate-service-account \${GKE_SERVICE_ACCOUNT_USER} --key-file=\${GKE_SERVICE_ACCOUNT}
+            docker login -u _json_key -p "\$(cat ${GKE_SERVICE_ACCOUNT})" https://gcr.io
+            docker push ${image}
+        """
+      }
     }
 
     // deploy service by applying kubernetes manifests in service repo
     stage("deploy") {
       if (fileExists("manifests")) {
-        sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'kubectl apply -f /service/manifests/service.yaml' -f /service/manifests/deployment.yaml'"
+        sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'kubectl apply -f /service/manifests/service.yaml -f /service/manifests/deployment.yaml'"
         sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'kubectl expose deployment -n workshop ${service} --type=LoadBalancer --name=${service}-lb --port=8080'"
       } else {
         echo "No manifests/ folder found, skipping deployment"
