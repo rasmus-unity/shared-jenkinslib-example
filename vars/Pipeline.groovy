@@ -11,7 +11,7 @@ def call(body) {
       withEnv([
         "image=${image}",
       ]) {
-        sh "./ci/build.sh"
+        sh "sh ./ci/build.sh"
       }
     }
 
