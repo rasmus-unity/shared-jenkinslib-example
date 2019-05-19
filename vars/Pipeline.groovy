@@ -42,6 +42,7 @@ def call(body) {
         sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'if kubectl get service ${service}-lb -n workshop > /dev/null; then kubectl delete service ${service}-lb -n workshop; fi'"
         sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'kubectl apply -f /service/manifests/service.yaml -f /service/manifests/deployment.yaml'"
         sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'kubectl expose deployment -n workshop ${service} --type=LoadBalancer --name=${service}-lb --port=8080'"
+        sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'kubectl get all -n workshop | grep ${service}'"
       } else {
         echo "No manifests/ folder found, skipping deployment"
       }
