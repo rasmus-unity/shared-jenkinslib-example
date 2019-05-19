@@ -39,7 +39,6 @@ def call(body) {
     // deploy service by applying kubernetes manifests in service repo
     stage("deploy") {
       if (fileExists("manifests")) {
-        sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'kubectl delete service ${service}-lb'"
         sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'kubectl apply -f /service/manifests/service.yaml -f /service/manifests/deployment.yaml'"
         sh "docker run --rm --volume `pwd`:/service gcr.io/unity-ads-workshop-test/workshop-deployer bash -c 'kubectl expose deployment -n workshop ${service} --type=LoadBalancer --name=${service}-lb --port=8080'"
       } else {
