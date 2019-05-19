@@ -31,7 +31,11 @@ def call(body) {
           set -x
           gcloud auth activate-service-account \${GKE_SERVICE_ACCOUNT_USER} --key-file=\${GKE_SERVICE_ACCOUNT} >/dev/null 2>&1
           docker login -u _json_key -p "\$(cat ${GKE_SERVICE_ACCOUNT})" https://gcr.io >/dev/null 2>&1
+
           docker push ${image}
+
+          docker tag ${image} gcr.io/unity-ads-workshop-test/${service}:latest
+          docker push gcr.io/unity-ads-workshop-test/${service}:latest
         """
       }
     }
